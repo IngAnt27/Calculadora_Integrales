@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Integra7 de Universo7</title>
+  <desc id="desc">Logotipo de una calculadora de integrales: símbolo integral y número siete dentro de una órbita cósmica, junto al nombre Integra7 y Universo7.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101938"/><stop offset="1" stop-color="#1a2760"/>
+    </linearGradient>
+    <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#55e6ff"/><stop offset="1" stop-color="#a68bff"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#c9d7ff"/>
+    </linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Brand tile -->
+  <rect x="28" y="28" width="1144" height="464" rx="54" fill="url(#bg)"/>
+  <circle cx="265" cy="260" r="162" fill="#111b43" stroke="#344274" stroke-width="2"/>
+  <!-- orbit ellipse -->
+  <ellipse cx="265" cy="260" rx="174" ry="76" transform="rotate(-28 265 260)" fill="none" stroke="url(#orbit)" stroke-width="5" opacity=".95"/>
+  <ellipse cx="265" cy="260" rx="145" ry="108" transform="rotate(48 265 260)" fill="none" stroke="#7182dd" stroke-width="2" opacity=".55"/>
+  <!-- stars -->
+  <circle cx="130" cy="157" r="4" fill="#fff"/><circle cx="369" cy="132" r="3" fill="#73e8ff"/>
+  <circle cx="389" cy="338" r="4" fill="#b7a5ff"/><circle cx="151" cy="373" r="2.5" fill="#fff"/>
+  <path d="M197 112v16m-8-8h16M344 390v12m-6-6h12" stroke="#ccecff" stroke-width="2" opacity=".8"/>
+  <!-- integral and 7 -->
+  <text x="210" y="315" text-anchor="middle" font-family="Cambria Math, STIX Two Math, serif" font-size="184" font-weight="400" fill="#5be5ff" filter="url(#glow)">∫</text>
+  <text x="294" y="302" text-anchor="middle" font-family="Aptos, Arial, sans-serif" font-size="116" font-weight="800" fill="#ffffff">7</text>
+  <!-- Wordmark -->
+  <text x="500" y="246" font-family="Aptos, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="1" fill="url(#word)">INTEGRA<tspan fill="#62e4ff">7</tspan></text>
+  <rect x="506" y="278" width="486" height="3" rx="1.5" fill="url(#orbit)" opacity=".9"/>
+  <text x="510" y="339" font-family="Aptos, Arial, sans-serif" font-size="31" font-weight="600" letter-spacing="8" fill="#c5d0f4">UNIVERSO7</text>
+  <text x="510" y="397" font-family="Aptos, Arial, sans-serif" font-size="23" font-weight="400" letter-spacing="1.1" fill="#9eacd9">Calculadora de integrales</text>
+  <!-- mathematical accent -->
+  <text x="1016" y="412" font-family="Cambria Math, serif" font-size="38" fill="#67ddf3" opacity=".88">∫ f(x) dx</text>
+</svg>
