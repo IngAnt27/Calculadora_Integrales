@@ -2,7 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package calculadoraintegrales;
+package calculadoraintegrales.frontend.vistas;
+import calculadoraintegrales.backend.dao.Conexion;
+import calculadoraintegrales.frontend.componentes.PanelDegradado;
 import java.awt.Color;
 /**
  *
@@ -47,7 +49,6 @@ public class VentanaBienvenida extends javax.swing.JFrame {
         jLabel1.setPreferredSize(new java.awt.Dimension(950, 500));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(900, 530));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 

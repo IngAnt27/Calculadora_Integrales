@@ -1,9 +1,11 @@
-package calculadoraintegrales;
+package calculadoraintegrales.frontend.vistas;
 
 
-import calculadoraintegrales.UsuarioDAO;
-import calculadoraintegrales.Usuario;
-import calculadoraintegrales.Seguridad;
+import calculadoraintegrales.frontend.componentes.PanelDegradado;
+import calculadoraintegrales.backend.dao.UsuarioDAO;
+import calculadoraintegrales.backend.dao.UsuarioDAO;
+import calculadoraintegrales.backend.model.Usuario;
+import calculadoraintegrales.backend.util.Seguridad;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -173,7 +175,6 @@ public class VentanaRegistro extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(900, 550));
-        setPreferredSize(new java.awt.Dimension(900, 580));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel2.setText("Usuario:");

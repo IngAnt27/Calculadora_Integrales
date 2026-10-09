@@ -1,4 +1,4 @@
-package calculadoraintegrales;
+package calculadoraintegrales.backend.util;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -9,6 +9,7 @@ package calculadoraintegrales;
  *
  * @author Usuario
  */
+import calculadoraintegrales.backend.model.Polinomio;
 import java.util.List;
 import java.util.ArrayList;
 

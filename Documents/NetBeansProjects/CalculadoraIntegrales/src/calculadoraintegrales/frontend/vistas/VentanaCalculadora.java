@@ -6,8 +6,13 @@
  *
  * @author Usuario
  */
-package calculadoraintegrales;
+package calculadoraintegrales.frontend.vistas;
 
+import calculadoraintegrales.backend.dao.ProcedimientoDAO;
+import calculadoraintegrales.backend.util.Parser;
+import calculadoraintegrales.backend.model.Polinomio;
+import calculadoraintegrales.backend.model.Procedimiento;
+import calculadoraintegrales.backend.model.Usuario;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -359,7 +364,6 @@ public class VentanaCalculadora extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(245, 247, 252));
         setMinimumSize(new java.awt.Dimension(765, 445));
-        setPreferredSize(new java.awt.Dimension(1100, 600));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 

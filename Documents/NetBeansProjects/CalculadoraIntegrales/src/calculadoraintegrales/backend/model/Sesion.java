@@ -1,4 +1,6 @@
-package calculadoraintegrales;
+package calculadoraintegrales.backend.model;
+
+import calculadoraintegrales.backend.model.Usuario;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license

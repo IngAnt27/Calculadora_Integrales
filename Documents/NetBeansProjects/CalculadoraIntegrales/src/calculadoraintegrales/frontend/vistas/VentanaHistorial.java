@@ -1,4 +1,8 @@
-package calculadoraintegrales;
+package calculadoraintegrales.frontend.vistas;
+
+import calculadoraintegrales.backend.dao.ProcedimientoDAO;
+import calculadoraintegrales.backend.model.Procedimiento;
+import calculadoraintegrales.backend.model.Usuario;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license

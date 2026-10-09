@@ -2,8 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package calculadoraintegrales;
+package calculadoraintegrales.frontend.vistas;
 
+import calculadoraintegrales.backend.util.Parser;
+import calculadoraintegrales.backend.model.Polinomio;
+import calculadoraintegrales.backend.model.Usuario;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -536,7 +539,6 @@ public class VentanaGrafica extends javax.swing.JFrame {
         BtnHistorial = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1100, 650));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pnlHeader.setBackground(new java.awt.Color(245, 247, 252));

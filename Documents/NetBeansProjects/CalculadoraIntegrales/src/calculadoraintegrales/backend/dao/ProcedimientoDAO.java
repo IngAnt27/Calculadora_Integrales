@@ -1,4 +1,4 @@
-package calculadoraintegrales;
+package calculadoraintegrales.backend.dao;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -10,6 +10,7 @@ package calculadoraintegrales;
  * @author Usuario
  */
 
+import calculadoraintegrales.backend.model.Procedimiento;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

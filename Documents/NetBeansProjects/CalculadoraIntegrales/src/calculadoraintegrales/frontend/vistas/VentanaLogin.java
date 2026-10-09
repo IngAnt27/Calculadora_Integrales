@@ -6,7 +6,12 @@
  *
  * @author Usuario
  */
-package calculadoraintegrales;
+package calculadoraintegrales.frontend.vistas;
+
+import calculadoraintegrales.frontend.componentes.PanelDegradado;
+import calculadoraintegrales.backend.dao.UsuarioDAO;
+import calculadoraintegrales.backend.util.Seguridad;
+import calculadoraintegrales.backend.model.Usuario;
 
   
 
