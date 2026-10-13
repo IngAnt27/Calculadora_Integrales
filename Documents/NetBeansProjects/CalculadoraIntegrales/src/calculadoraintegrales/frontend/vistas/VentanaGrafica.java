@@ -15,12 +15,13 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.util.List;
 import javax.swing.JPanel;
+
 /**
  *
  * @author Usuario
  */
 public class VentanaGrafica extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VentanaGrafica.class.getName());
 
     private Usuario usuarioActual;
@@ -30,51 +31,108 @@ public class VentanaGrafica extends javax.swing.JFrame {
     private double limSupActivo;
     private String resultadoActivo;
     private PanelPlanoCartesiano lienzoMates;
-    
+
     public VentanaGrafica(Usuario usuario, String funcion, String variable, String limInf, String limSup, String resultado) {
         initComponents();
-        this.setLocationRelativeTo(null); 
-        
+        this.setLocationRelativeTo(null);
+
         this.usuarioActual = usuario;
         this.funcionActiva = funcion;
         this.variableActiva = variable;
-        
-        try { this.limInfActivo = Double.parseDouble(limInf); } catch (Exception e) { this.limInfActivo = 0; }
-        try { this.limSupActivo = Double.parseDouble(limSup); } catch (Exception e) { this.limSupActivo = 10; }
-        
+
+        try {
+            this.limInfActivo = Double.parseDouble(limInf);
+        } catch (Exception e) {
+            this.limInfActivo = 0;
+        }
+        try {
+            this.limSupActivo = Double.parseDouble(limSup);
+        } catch (Exception e) {
+            this.limSupActivo = 10;
+        }
+
         this.resultadoActivo = (resultado != null && !resultado.isEmpty()) ? resultado : "0";
-        
+
         // Cargar datos del usuario
         if (this.usuarioActual != null) {
             lblUsuario.setText(this.usuarioActual.getNombreUsuario());
             String inicial = (this.usuarioActual.getNombreUsuario() != null && !this.usuarioActual.getNombreUsuario().isEmpty())
-                             ? this.usuarioActual.getNombreUsuario().substring(0, 1).toUpperCase() : "?";
+                    ? this.usuarioActual.getNombreUsuario().substring(0, 1).toUpperCase() : "?";
             lblInicial.setText(inicial);
             lblInicial.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         }
 
         aplicarEstilosPersonalizados();
         actualizarDatosVisuales();
-        
+
         // Inyectar el lienzo de dibujo
         pnlDibujo.setLayout(new java.awt.BorderLayout());
         lienzoMates = new PanelPlanoCartesiano();
         pnlDibujo.add(lienzoMates, java.awt.BorderLayout.CENTER);
-        
+
         // Listeners para los checkboxes
         chkMostrarArea.addActionListener(e -> lienzoMates.repaint());
         chkMostrarCuadricula.addActionListener(e -> lienzoMates.repaint());
+        
+        // ===== NAVEGACIÓN CON TECLADO (Ventana Gráfica) =====
+        
+        // 1. Desde Función a Límite Inferior (flecha abajo o Enter)
+        txtFuncion1.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER || evt.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
+                    lblLimInf.requestFocusInWindow(); // lblLimInf es tu JTextField del límite inferior
+                }
+            }
+        });
+
+        // 2. Desde Límite Inferior a Límite Superior (o regresar a Función)
+        lblLimInf.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER || evt.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
+                    jTextField1.requestFocusInWindow(); // jTextField1 es tu JTextField del límite superior
+                } else if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_UP) {
+                    txtFuncion1.requestFocusInWindow();
+                }
+            }
+        });
+
+        // 3. Desde Límite Superior: Actualizar gráfica (Enter) o regresar a Límite Inferior (Flecha Arriba)
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    btnActualizar.doClick(); // Simula un clic en el botón Actualizar
+                } else if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_UP) {
+                    lblLimInf.requestFocusInWindow();
+                }
+            }
+        });
+        
+        // 4. Que la tecla ESC simule el botón de "Volver" desde cualquier caja de texto
+        java.awt.event.KeyAdapter escListener = new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    btnVolver.doClick();
+                }
+            }
+        };
+        txtFuncion1.addKeyListener(escListener);
+        lblLimInf.addKeyListener(escListener);
+        jTextField1.addKeyListener(escListener);
     }
 
     private void aplicarEstilosPersonalizados() {
-   Color colorFondo = new Color(245, 247, 252);
+        Color colorFondo = new Color(245, 247, 252);
         getContentPane().setBackground(colorFondo);
-        
+
         pnlHeader.setBackground(colorFondo);
         pnlHeader.setOpaque(true);
         pnlSesion.setBackground(new Color(238, 241, 248));
         pnlSesion.setOpaque(true);
-        
+
         pnlControles.setBackground(Color.WHITE);
         pnlControles.setOpaque(true);
         pnlLienzoGrafica.setBackground(Color.WHITE);
@@ -83,20 +141,20 @@ public class VentanaGrafica extends javax.swing.JFrame {
         pnlResumen.setOpaque(true);
         pnlDibujo.setBackground(Color.WHITE);
         pnlDibujo.setOpaque(true);
-        
+
         pnlControles.putClientProperty("JComponent.arc", 16);
         pnlLienzoGrafica.putClientProperty("JComponent.arc", 16);
         pnlResumen.putClientProperty("JComponent.arc", 16);
-        
+
         Color colorAzulOscuro = new Color(29, 42, 82);
         lblIntegraHeader.setForeground(colorAzulOscuro);
         lblTituloApp.setForeground(colorAzulOscuro);
-        lblTituloApp.setBackground(colorFondo); 
+        lblTituloApp.setBackground(colorFondo);
         lblUsuario.setForeground(colorAzulOscuro);
         lblLogo2.setForeground(new Color(153, 153, 153));
         lblLogoHeader.setForeground(new Color(0, 51, 204));
-        
-        Color colorTextoNegro = new Color(20, 20, 20); 
+
+        Color colorTextoNegro = new Color(20, 20, 20);
         lblTituloGrafica.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
         lblTituloGrafica.setForeground(colorTextoNegro);
         lblEcuacionGrafica.setForeground(colorTextoNegro);
@@ -109,45 +167,44 @@ public class VentanaGrafica extends javax.swing.JFrame {
         lblValLimSup.setForeground(colorTextoNegro);
         lblTxtVar1.setForeground(colorTextoNegro);
         lblVarVar.setForeground(colorTextoNegro);
-        
+
         lblResultadoG.setFont(new java.awt.Font("Cambria Math", java.awt.Font.BOLD, 36));
         lblResultadoG.setForeground(colorTextoNegro);
-        lblResultadoDec.setForeground(new Color(48, 113, 196)); 
+        lblResultadoDec.setForeground(new Color(48, 113, 196));
         lblResultadoDec.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
-        
+
         lblLeyendaFx.setForeground(new Color(30, 90, 200));
         lblLeyendaFx.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
         lblLeyendaFx.setText("━ f(" + variableActiva + ")");
-        
+
         lblLeyendaArea.setForeground(new Color(173, 216, 230));
         lblLeyendaArea.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
         lblLeyendaArea.setText("⬛ Área integrada");
-        
+
         // ===== ESTILO DEL AVATAR (INICIAL DEL USUARIO) =====
         // 1. Forzamos a que el fondo deje de ser transparente
         lblInicial.setOpaque(true);
-        
+
         // 2. Le damos un fondo azul fuerte y texto blanco
-        lblInicial.setBackground(new Color(48, 113, 196)); 
-        lblInicial.setForeground(Color.WHITE); 
-        
+        lblInicial.setBackground(new Color(48, 113, 196));
+        lblInicial.setForeground(Color.WHITE);
+
         // 3. Tipografía en negrita y más grande
         lblInicial.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
-        
+
         // 4. Centramos la letra perfectamente
         lblInicial.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        
+
         // 5. Magia de FlatLaf para hacerlo completamente redondo (círculo)
         lblInicial.putClientProperty("FlatLaf.style", "arc: 999");
-        
+
         // Opcional: Asegurarnos de que el nombre del usuario también resalte
         lblUsuario.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
         lblUsuario.setForeground(new Color(29, 42, 82));
-        
 
         javax.swing.JTextField[] campos = {txtFuncion1, txtVariable, lblLimInf, jTextField1};
         for (javax.swing.JTextField campo : campos) {
-            campo.setOpaque(true); 
+            campo.setOpaque(true);
             campo.setBackground(Color.WHITE);
             campo.setForeground(colorTextoNegro);
             campo.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
@@ -156,27 +213,27 @@ public class VentanaGrafica extends javax.swing.JFrame {
         }
 
         // ===== FIX DEL ERROR: SE ELIMINÓ iconArc =====
-        javax.swing.JCheckBox[] checks = {chkMostrarArea, chkMostrarCuadricula};
+       javax.swing.JCheckBox[] checks = {chkMostrarArea, chkMostrarCuadricula};
         for (javax.swing.JCheckBox chk : checks) {
-            chk.setOpaque(false); 
+            chk.setOpaque(false);
             chk.setForeground(colorTextoNegro);
-            chk.putClientProperty("FlatLaf.style", "iconTextGap:8; iconBorderColor:#3071C4; iconBackground:#FFFFFF; checkmarkColor:#3071C4; iconFocusedBorderColor:#0055FF");
         }
 
         btnActualizar.setBackground(new Color(48, 113, 196));
         btnActualizar.setForeground(Color.WHITE);
         btnActualizar.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
         btnActualizar.putClientProperty("JComponent.arc", 10);
-        
+
         javax.swing.border.Border bordeRedondo = new javax.swing.border.AbstractBorder() {
             @Override
             public void paintBorder(java.awt.Component c, java.awt.Graphics g, int x, int y, int width, int height) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(200, 205, 215)); 
+                g2.setColor(new Color(200, 205, 215));
                 g2.drawRoundRect(x, y, width - 1, height - 1, 15, 15);
                 g2.dispose();
             }
+
             @Override
             public java.awt.Insets getBorderInsets(java.awt.Component c) {
                 return new java.awt.Insets(6, 12, 6, 12);
@@ -187,29 +244,29 @@ public class VentanaGrafica extends javax.swing.JFrame {
         btnVolver.setForeground(new Color(48, 113, 196));
         btnVolver.setBorder(bordeRedondo);
         btnVolver.setFocusPainted(false);
-        
+
         BtnHistorial.setBackground(new Color(232, 242, 255));
-        BtnHistorial.setForeground(new Color(30, 90, 200));   
+        BtnHistorial.setForeground(new Color(30, 90, 200));
         BtnHistorial.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
         BtnHistorial.setBorder(bordeRedondo);
         BtnHistorial.setFocusPainted(false);
         BtnHistorial.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
     }
-    
-  private void actualizarDatosVisuales() {
+
+    private void actualizarDatosVisuales() {
         txtFuncion1.setText(this.funcionActiva);
         txtVariable.setText(this.variableActiva);
-        lblLimInf.setText(String.valueOf(this.limInfActivo));      
-        jTextField1.setText(String.valueOf(this.limSupActivo));    
-        
+        lblLimInf.setText(String.valueOf(this.limInfActivo));
+        jTextField1.setText(String.valueOf(this.limSupActivo));
+
         lblEcuacionGrafica.setText("f(" + this.variableActiva + ") = " + this.funcionActiva);
         lblDetalleIntervalo.setText("Integral definida en [" + this.limInfActivo + ", " + this.limSupActivo + "]");
-        
+
         // ===== LA SOLUCIÓN =====
         // Limpiamos el HTML y le pedimos explícitamente que traduzca el código &#8776; a ≈
         String resLimpio = this.resultadoActivo.replaceAll("<[^>]*>", "").replace("&#8776;", "≈").trim();
-        
-        if(resLimpio.contains("≈")) {
+
+        if (resLimpio.contains("≈")) {
             String[] partes = resLimpio.split("≈");
             lblResultadoG.setText(partes[0].trim()); // Fracción
             lblResultadoDec.setText("≈ " + partes[1].trim()); // Decimal
@@ -217,13 +274,13 @@ public class VentanaGrafica extends javax.swing.JFrame {
             lblResultadoG.setText(resLimpio);
             lblResultadoDec.setText("");
         }
-        
+
         lblValLimInf.setText(String.valueOf(this.limInfActivo));
         lblValLimSup.setText(String.valueOf(this.limSupActivo));
         lblVarVar.setText(this.variableActiva);
     }
-  
-  // ===== MÉTODOS AUXILIARES PARA RECALCULAR RESULTADOS =====
+
+    // ===== MÉTODOS AUXILIARES PARA RECALCULAR RESULTADOS =====
     private String formatearNumero(double numero) {
         java.text.DecimalFormat formato = new java.text.DecimalFormat("#.##");
         formato.setDecimalFormatSymbols(java.text.DecimalFormatSymbols.getInstance(java.util.Locale.US));
@@ -242,7 +299,9 @@ public class VentanaGrafica extends javax.swing.JFrame {
     }
 
     private String doubleToFraccion(double valor) {
-        if (valor == 0) return "0";
+        if (valor == 0) {
+            return "0";
+        }
         int signo = valor < 0 ? -1 : 1;
         valor = Math.abs(valor);
 
@@ -258,45 +317,56 @@ public class VentanaGrafica extends javax.swing.JFrame {
                 mejorNum = num;
                 mejorDen = den;
             }
-            if (error < 1e-9) break;
+            if (error < 1e-9) {
+                break;
+            }
         }
 
         long divisor = mcd(mejorNum, mejorDen);
         mejorNum /= divisor;
         mejorDen /= divisor;
 
-        if (mejorDen == 1) return String.valueOf(signo * mejorNum);
+        if (mejorDen == 1) {
+            return String.valueOf(signo * mejorNum);
+        }
         return (signo < 0 ? "-" : "") + mejorNum + "/" + mejorDen;
     }
 
     // =========================================================================
     // CLASE INTERNA: MOTOR GRÁFICO DEL PLANO CARTESIANO
     // =========================================================================
-   
-   class PanelPlanoCartesiano extends JPanel {
-        
+    class PanelPlanoCartesiano extends JPanel {
+
         public PanelPlanoCartesiano() {
-            setOpaque(true); 
+            setOpaque(true);
             setBackground(new Color(248, 250, 252)); // Gris super claro, como en la imagen
         }
 
         private double calcularPasoAmigable(double rango, int maxLineas) {
-            if (rango <= 0) return 1;
+            if (rango <= 0) {
+                return 1;
+            }
             double pasoBruto = rango / maxLineas;
             double magnitud = Math.pow(10, Math.floor(Math.log10(pasoBruto)));
             double residuo = pasoBruto / magnitud;
-            
-            if (residuo > 5) return 10 * magnitud;
-            if (residuo > 2) return 5 * magnitud;
-            if (residuo > 1) return 2 * magnitud;
+
+            if (residuo > 5) {
+                return 10 * magnitud;
+            }
+            if (residuo > 2) {
+                return 5 * magnitud;
+            }
+            if (residuo > 1) {
+                return 2 * magnitud;
+            }
             return magnitud;
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
-            
+
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
@@ -304,50 +374,70 @@ public class VentanaGrafica extends javax.swing.JFrame {
             g2.setColor(new Color(248, 250, 252));
             g2.fillRect(0, 0, getWidth(), getHeight());
 
-            Parser parser = new Parser();
-            List<Polinomio> terminos;
-            try { terminos = parser.parsearFuncion(funcionActiva, variableActiva); } 
-            catch (Exception e) { return; }
+            // Inicialización de la nueva librería matemática exp4j
+            net.objecthunter.exp4j.Expression expr;
+            try {
+                expr = new net.objecthunter.exp4j.ExpressionBuilder(funcionActiva)
+                        .variables(variableActiva)
+                        .build();
+            } catch (Exception e) {
+                return;
+            }
 
             // Calcular rangos
             double spanX = limSupActivo - limInfActivo;
-            if (spanX <= 0) spanX = 10;
-            double xMin = limInfActivo - spanX * 0.05; // Ajuste pegado a la izquierda como la imagen
-            double xMax = limSupActivo + spanX * 0.15; // Espacio a la derecha
-            if (limInfActivo == 0) xMin = -spanX * 0.05;
+            if (spanX <= 0) {
+                spanX = 10;
+            }
+            double xMin = limInfActivo - spanX * 0.05; 
+            double xMax = limSupActivo + spanX * 0.15; 
+            if (limInfActivo == 0) {
+                xMin = -spanX * 0.05;
+            }
 
             double yMin = 0, yMax = 0;
             for (double x = xMin; x <= xMax; x += spanX / 500.0) {
-                double y = evaluarLista(terminos, x);
-                if (y < yMin) yMin = y;
-                if (y > yMax) yMax = y;
+                expr.setVariable(variableActiva, x);
+                double y = expr.evaluate();
+                if (y < yMin) {
+                    yMin = y;
+                }
+                if (y > yMax) {
+                    yMax = y;
+                }
             }
-            
+
             double spanY = yMax - yMin;
-            if (spanY == 0) { yMax += 5; yMin -= 5; } 
-            else { yMax += spanY * 0.1; }
+            if (spanY == 0) {
+                yMax += 5;
+                yMin -= 5;
+            } else {
+                yMax += spanY * 0.1;
+            }
 
             // Configurar márgenes de dibujo (Caja principal)
-            int padLeft = 55;   // Espacio para números Y y texto "f(x)"
-            int padBottom = 30; // Espacio para números X
+            int padLeft = 55;   
+            int padBottom = 30; 
             int padTop = 20;
             int padRight = 20;
-            
+
             int width = getWidth() - padLeft - padRight;
             int height = getHeight() - padTop - padBottom;
-            if (width <= 0 || height <= 0) return;
+            if (width <= 0 || height <= 0) {
+                return;
+            }
 
             double scaleX = width / (xMax - xMin);
             double scaleY = height / (yMax - yMin);
-            
-            int drawOrigY = padTop + (int) (yMax * scaleY); // Y pixel for Y=0
-            int drawOrigX = padLeft + (int) (-xMin * scaleX); // X pixel for X=0
+
+            int drawOrigY = padTop + (int) (yMax * scaleY); 
+            int drawOrigX = padLeft + (int) (-xMin * scaleX); 
             drawOrigY = Math.max(padTop, Math.min(padTop + height, drawOrigY));
             drawOrigX = Math.max(padLeft, Math.min(padLeft + width, drawOrigX));
 
             // ==== DIBUJAR CUADRÍCULA ====
-            java.text.DecimalFormat dfX = new java.text.DecimalFormat("0.0"); // Formato 0.5, 1.0...
-            java.text.DecimalFormat dfY = new java.text.DecimalFormat("#.##"); // Formato 100, 200...
+            java.text.DecimalFormat dfX = new java.text.DecimalFormat("0.0"); 
+            java.text.DecimalFormat dfY = new java.text.DecimalFormat("#.##"); 
             g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
 
             double stepX = calcularPasoAmigable(xMax - xMin, 10);
@@ -355,31 +445,35 @@ public class VentanaGrafica extends javax.swing.JFrame {
 
             if (chkMostrarCuadricula.isSelected()) {
                 g2.setStroke(new BasicStroke(1.0f));
-                
+
                 // Líneas Horizontales (Eje Y)
                 for (double i = Math.ceil(yMin / stepY) * stepY; i <= yMax; i += stepY) {
-                    if (Math.abs(i) < 1e-9) i = 0;
+                    if (Math.abs(i) < 1e-9) {
+                        i = 0;
+                    }
                     int py = padTop + (int) ((yMax - i) * scaleY);
-                    
-                    g2.setColor(new Color(230, 235, 240)); // Línea gris claro
-                    g2.drawLine(padLeft, py, getWidth() - padRight, py); 
-                    
-                    g2.setColor(new Color(100, 110, 120)); // Número oscuro
-                    if (i != 0 || yMin >= 0) { // Mostrar el 0 si es la base
+
+                    g2.setColor(new Color(230, 235, 240)); 
+                    g2.drawLine(padLeft, py, getWidth() - padRight, py);
+
+                    g2.setColor(new Color(100, 110, 120)); 
+                    if (i != 0 || yMin >= 0) { 
                         String num = dfY.format(i);
                         int sw = g2.getFontMetrics().stringWidth(num);
                         g2.drawString(num, padLeft - sw - 8, py + 4);
                     }
                 }
-                
+
                 // Líneas Verticales (Eje X)
                 for (double i = Math.ceil(xMin / stepX) * stepX; i <= xMax; i += stepX) {
-                    if (Math.abs(i) < 1e-9) i = 0; 
+                    if (Math.abs(i) < 1e-9) {
+                        i = 0;
+                    }
                     int px = padLeft + (int) ((i - xMin) * scaleX);
-                    
+
                     g2.setColor(new Color(230, 235, 240));
-                    g2.drawLine(px, padTop, px, getHeight() - padBottom); 
-                    
+                    g2.drawLine(px, padTop, px, getHeight() - padBottom);
+
                     g2.setColor(new Color(100, 110, 120));
                     String num = dfX.format(i);
                     int sw = g2.getFontMetrics().stringWidth(num);
@@ -400,73 +494,86 @@ public class VentanaGrafica extends javax.swing.JFrame {
             // Bordes Principales de los Ejes
             g2.setColor(new Color(200, 205, 215));
             g2.setStroke(new BasicStroke(1.5f));
-            g2.drawLine(padLeft, padTop, padLeft, getHeight() - padBottom); // Eje Y (Izquierdo)
-            g2.drawLine(padLeft, drawOrigY, getWidth() - padRight, drawOrigY); // Eje X (Abajo)
+            g2.drawLine(padLeft, padTop, padLeft, getHeight() - padBottom); 
+            g2.drawLine(padLeft, drawOrigY, getWidth() - padRight, drawOrigY); 
 
             // ==== ÁREA INTEGRADA ====
             int pxLimInf = padLeft + (int) ((limInfActivo - xMin) * scaleX);
             int pxLimSup = padLeft + (int) ((limSupActivo - xMin) * scaleX);
-            
+
             if (chkMostrarArea.isSelected()) {
                 java.awt.geom.GeneralPath areaPath = new java.awt.geom.GeneralPath();
                 areaPath.moveTo(pxLimInf, drawOrigY);
                 for (double x = limInfActivo; x <= limSupActivo; x += spanX / 200.0) {
-                    double y = evaluarLista(terminos, x);
+                    expr.setVariable(variableActiva, x);
+                    double y = expr.evaluate();
                     int px = padLeft + (int) ((x - xMin) * scaleX);
                     int py = padTop + (int) ((yMax - y) * scaleY);
                     areaPath.lineTo(px, py);
                 }
                 areaPath.lineTo(pxLimSup, drawOrigY);
                 areaPath.closePath();
-                
-                g2.setColor(new Color(66, 133, 244, 70)); // Azul semitransparente como la imagen
+
+                g2.setColor(new Color(66, 133, 244, 70)); 
                 g2.fill(areaPath);
-                
+
                 // Línea Punteada Gris Oscura en el Límite Superior
                 float[] dash = {6.0f, 4.0f};
                 g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10.0f, dash, 0.0f));
-                g2.setColor(new Color(120, 120, 120)); // Gris oscuro punteado
-                int pyLimSup = padTop + (int)((yMax - evaluarLista(terminos, limSupActivo)) * scaleY);
-                g2.drawLine(pxLimSup, drawOrigY, pxLimSup, pyLimSup);
+                g2.setColor(new Color(120, 120, 120)); 
                 
-                // Etiqueta superior "x = 5"
+                expr.setVariable(variableActiva, limSupActivo);
+                double yLimSup = expr.evaluate();
+                int pyLimSup = padTop + (int) ((yMax - yLimSup) * scaleY);
+                g2.drawLine(pxLimSup, drawOrigY, pxLimSup, pyLimSup);
+
+                // Etiqueta superior "x = ..."
                 g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 12));
                 String lblLim = variableActiva + " = " + dfX.format(limSupActivo);
                 int swLim = g2.getFontMetrics().stringWidth(lblLim);
                 g2.drawString(lblLim, pxLimSup - swLim / 2, pyLimSup - 8);
 
-                // Etiqueta Central "Área = 781.25"
-                g2.setColor(new Color(60, 70, 80)); // Gris Oscuro Fuerte
+                // Etiqueta Central "Área = ..."
+                g2.setColor(new Color(60, 70, 80)); 
                 g2.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
                 String resTexto = lblResultadoDec.getText().replace("≈", "").trim();
-                if(resTexto.isEmpty()) resTexto = lblResultadoG.getText();
+                if (resTexto.isEmpty()) {
+                    resTexto = lblResultadoG.getText();
+                }
                 String txtAreaCentrada = "Área = " + resTexto;
-                
+
                 int swArea = g2.getFontMetrics().stringWidth(txtAreaCentrada);
                 int pxCenter = padLeft + (int) ((((limInfActivo + limSupActivo) / 2) - xMin) * scaleX);
-                int pyCenter = drawOrigY - 15; // Pegadito al eje X
+                int pyCenter = drawOrigY - 15; 
                 
+                expr.setVariable(variableActiva, (limInfActivo + limSupActivo) / 2);
+                double yCenter = expr.evaluate();
                 // Si el área es muy chiquita, se dibuja un poco más arriba
-                if (padTop + (int)((yMax - evaluarLista(terminos, (limInfActivo + limSupActivo) / 2)) * scaleY) > pyCenter - 20) {
-                    pyCenter = drawOrigY - 30; 
+                if (padTop + (int) ((yMax - yCenter) * scaleY) > pyCenter - 20) {
+                    pyCenter = drawOrigY - 30;
                 }
                 g2.drawString(txtAreaCentrada, pxCenter - swArea / 2, pyCenter);
             }
 
             // ==== CURVA PRINCIPAL ====
-            g2.setColor(new Color(66, 133, 244)); // Azul fuerte Google
-            g2.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); 
-            
+            g2.setColor(new Color(66, 133, 244)); 
+            g2.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
             java.awt.geom.GeneralPath curvaPath = new java.awt.geom.GeneralPath();
             boolean first = true;
             for (int px = padLeft; px <= getWidth() - padRight; px++) {
                 double x = xMin + ((px - padLeft) / scaleX);
-                double y = evaluarLista(terminos, x);
+                expr.setVariable(variableActiva, x);
+                double y = expr.evaluate();
                 int py = padTop + (int) ((yMax - y) * scaleY);
-                
-                if (py < -1000) py = -1000;
-                if (py > height + 1000) py = height + 1000;
-                
+
+                if (py < -1000) {
+                    py = -1000;
+                }
+                if (py > height + 1000) {
+                    py = height + 1000;
+                }
+
                 if (first) {
                     curvaPath.moveTo(px, py);
                     first = false;
@@ -476,10 +583,9 @@ public class VentanaGrafica extends javax.swing.JFrame {
             }
             g2.draw(curvaPath);
         }
-        
         private double evaluarLista(List<Polinomio> terminos, double x) {
             double total = 0;
-            for(Polinomio p : terminos) {
+            for (Polinomio p : terminos) {
                 total += p.evaluar(x);
             }
             return total;
@@ -716,54 +822,45 @@ public class VentanaGrafica extends javax.swing.JFrame {
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
         String textoFuncion = txtFuncion1.getText().trim();
         String txtVar = txtVariable.getText().trim();
-        
+
         try {
             double limInf = Double.parseDouble(lblLimInf.getText().trim());
             double limSup = Double.parseDouble(jTextField1.getText().trim());
-            
-            // 1. Recalcular la integral matemáticamente
-            Parser parser = new Parser();
-            List<Polinomio> terminos = parser.parsearFuncion(textoFuncion, txtVar);
-            
-            double resultadoAcumulado = 0;
-            for (Polinomio termino : terminos) {
-                Polinomio terminoIntegrado = termino.integrar();
-                double evalSup = terminoIntegrado.evaluar(limSup);
-                double evalInf = terminoIntegrado.evaluar(limInf);
-                resultadoAcumulado += (evalSup - evalInf);
-            }
-            
+
+            // 1. Recalcular la integral matemáticamente con exp4j
+            double resultadoAcumulado = calculadoraintegrales.backend.util.MotorMatematico.integrar(textoFuncion, txtVar, limInf, limSup);
+
             // 2. Actualizar las variables de la ventana
             this.funcionActiva = textoFuncion;
             this.variableActiva = txtVar;
             this.limInfActivo = limInf;
             this.limSupActivo = limSup;
-            
+
             // 3. Formatear el nuevo resultado (Fracción y Decimal)
             String decimalStr = formatearNumero(resultadoAcumulado);
             String fraccionStr = doubleToFraccion(resultadoAcumulado);
-            
+
             if (fraccionStr.equals(decimalStr)) {
                 this.resultadoActivo = fraccionStr;
             } else {
                 this.resultadoActivo = fraccionStr + " ≈ " + decimalStr;
             }
-            
+
             // 4. Mandar a redibujar textos y lienzo visual
             actualizarDatosVisuales();
             lienzoMates.repaint();
-            
+
         } catch (NumberFormatException e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Los límites deben ser numéricos.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error de sintaxis en la función.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al procesar la función matemática.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void BtnHistorialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnHistorialActionPerformed
         if (this.usuarioActual != null) {
             new VentanaHistorial(this.usuarioActual).setVisible(true);
-            this.dispose(); 
+            this.dispose();
         }
     }//GEN-LAST:event_BtnHistorialActionPerformed
 

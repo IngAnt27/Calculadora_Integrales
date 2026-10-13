@@ -146,12 +146,12 @@ public class VentanaCalculadora extends javax.swing.JFrame {
         btnVerGrafica.setText("Ver Grafica");
         btnVerGrafica.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
         btnVerGrafica.setBackground(java.awt.Color.WHITE);
-        btnVerGrafica.setForeground(new java.awt.Color(194, 186, 37)); 
+        btnVerGrafica.setForeground(new java.awt.Color(194, 186, 37));
         btnVerGrafica.setBorder(bordeRedondo);
         btnVerGrafica.setFocusPainted(false);
         btnVerGrafica.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
         btnVerGrafica.setBounds(1010, 530, 80, 32);
-        
+
         btnCerrar.setText("Cerrar Sesion");
         btnCerrar.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
         btnCerrar.setBackground(java.awt.Color.WHITE);
@@ -185,12 +185,14 @@ public class VentanaCalculadora extends javax.swing.JFrame {
         });
 
         // ===== NAVEGACIÓN CON TECLADO (Calculadora) =====
+        
         // 1. Desde Función a Límite Inferior
         txtFuncion.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER || evt.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
-                    txtLimiteInferior.requestFocusInWindow();
+                    evt.consume(); // Evita que la caja procese el Enter
+                    txtLimiteInferior.requestFocus(); // Forzamos el foco
                 }
             }
         });
@@ -200,9 +202,11 @@ public class VentanaCalculadora extends javax.swing.JFrame {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER || evt.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
-                    txtLimiteSuperior.requestFocusInWindow();
+                    evt.consume();
+                    txtLimiteSuperior.requestFocus();
                 } else if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_UP) {
-                    txtFuncion.requestFocusInWindow();
+                    evt.consume();
+                    txtFuncion.requestFocus();
                 }
             }
         });
@@ -212,22 +216,22 @@ public class VentanaCalculadora extends javax.swing.JFrame {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    evt.consume();
                     btnIntegrar.doClick(); // Simula un clic en el botón Integrar
                 } else if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_UP) {
-                    txtLimiteInferior.requestFocusInWindow();
+                    evt.consume();
+                    txtLimiteInferior.requestFocus();
                 }
             }
         });
 
         // 4. Poner el cursor automáticamente en "Función" al abrir la calculadora
-        javax.swing.SwingUtilities.invokeLater(() -> txtFuncion.requestFocusInWindow());
+        javax.swing.SwingUtilities.invokeLater(() -> txtFuncion.requestFocus());
     }
 
     public VentanaCalculadora() {
         initComponents();
     }
-    
-    
 
     private void mostrarPasosVisual(List<String[]> pasos) {
         pnlPasosContenedor.removeAll();
@@ -634,77 +638,114 @@ public class VentanaCalculadora extends javax.swing.JFrame {
     }
     private void btnDerivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDerivarActionPerformed
         try {
-            String textoFuncion = txtFuncion.getText();
+            String textoFuncion = txtFuncion.getText().trim();
             String variable = cbxVariable.getSelectedItem().toString();
+            String strPunto = txtLimiteInferior.getText().trim();
 
-            Parser parser = new Parser();
-            List<Polinomio> terminos = parser.parsearFuncion(textoFuncion, variable);
+            if (strPunto.isEmpty()) {
+                // ===== CASO 1: DERIVADA SIMBÓLICA (Solo polinomios, sin evaluar en un punto) =====
+                Parser parser = new Parser();
+                List<Polinomio> terminos = parser.parsearFuncion(textoFuncion, variable);
+                StringBuilder resultadoFinal = new StringBuilder();
+                List<String[]> pasosVisuales = new ArrayList<>();
 
-            StringBuilder resultadoFinal = new StringBuilder();
-            List<String[]> pasosVisuales = new ArrayList<>();
+                pasosVisuales.add(new String[]{"", "d/d" + variable + " (" + textoFuncion + ")"});
 
-            pasosVisuales.add(new String[]{"", "d/d" + variable + " (" + textoFuncion + ")"});
+                if (terminos.size() > 1) {
+                    StringBuilder sumaDerivadas = new StringBuilder("= ");
+                    for (int i = 0; i < terminos.size(); i++) {
+                        Polinomio t = terminos.get(i);
+                        String termOriginal = formatoPolinomio(t.getCoeficiente(), t.getExponente(), variable);
+                        if (i > 0 && t.getCoeficiente() > 0) {
+                            sumaDerivadas.append(" + ");
+                        }
+                        sumaDerivadas.append("d/d").append(variable).append("(").append(termOriginal).append(")");
+                    }
+                    pasosVisuales.add(new String[]{"Aplicar la regla de la suma/resta:", sumaDerivadas.toString()});
+                }
 
-            if (terminos.size() > 1) {
-                StringBuilder sumaDerivadas = new StringBuilder("= ");
                 for (int i = 0; i < terminos.size(); i++) {
-                    Polinomio t = terminos.get(i);
-                    String termOriginal = formatoPolinomio(t.getCoeficiente(), t.getExponente(), variable);
-                    if (i > 0 && t.getCoeficiente() > 0) {
-                        sumaDerivadas.append(" + ");
+                    Polinomio termino = terminos.get(i);
+                    Polinomio terminoDerivado = termino.derivar();
+                    double coef = terminoDerivado.getCoeficiente();
+                    double exp = terminoDerivado.getExponente();
+
+                    String terminoOriginalStr = formatoPolinomio(termino.getCoeficiente(), termino.getExponente(), variable);
+                    String terminoDerivadoStr = formatoPolinomio(coef, exp, variable);
+                    if (terminoDerivadoStr.isEmpty()) {
+                        terminoDerivadoStr = "0";
                     }
-                    sumaDerivadas.append("d/d").append(variable).append("(").append(termOriginal).append(")");
-                }
-                pasosVisuales.add(new String[]{"Aplicar la regla de la suma/resta:", sumaDerivadas.toString()});
-            }
 
-            for (int i = 0; i < terminos.size(); i++) {
-                Polinomio termino = terminos.get(i);
-                Polinomio terminoDerivado = termino.derivar();
-                double coef = terminoDerivado.getCoeficiente();
-                double exp = terminoDerivado.getExponente();
+                    pasosVisuales.add(new String[]{"Derivar término", "d/d" + variable + "(" + terminoOriginalStr + ") = " + terminoDerivadoStr});
 
-                String terminoOriginalStr = formatoPolinomio(termino.getCoeficiente(), termino.getExponente(), variable);
-                String terminoDerivadoStr = formatoPolinomio(coef, exp, variable);
-                if (terminoDerivadoStr.isEmpty()) {
-                    terminoDerivadoStr = "0";
-                }
-
-                pasosVisuales.add(new String[]{"término", "d/d" + variable + "(" + terminoOriginalStr + ") = " + terminoDerivadoStr});
-
-                if (coef != 0) {
-                    if (coef > 0 && resultadoFinal.length() > 0) {
-                        resultadoFinal.append("+");
+                    if (coef != 0) {
+                        if (coef > 0 && resultadoFinal.length() > 0) {
+                            resultadoFinal.append("+");
+                        }
+                        resultadoFinal.append(terminoDerivadoStr);
                     }
-                    resultadoFinal.append(terminoDerivadoStr);
                 }
+
+                if (resultadoFinal.length() == 0 || resultadoFinal.toString().equals("+0") || resultadoFinal.toString().equals("-0")) {
+                    resultadoFinal = new StringBuilder("0");
+                }
+
+                String resultadoStr = resultadoFinal.toString();
+                pasosVisuales.add(new String[]{"Resultado final", "= " + resultadoStr});
+
+                lblTipoOperacion.setText("Derivada Simbólica");
+                lblFormulaIngresada.setText("<html>f(" + variable + ") = " + textoFuncion + "</html>");
+                lblResultadoGrande.setText("<html>f'(" + variable + ") = " + resultadoStr + "</html>");
+                lblResultadoCaption.setText("Fórmula de la derivada (válido para polinomios).");
+                mostrarPasosVisual(pasosVisuales);
+
+                StringBuilder pasosTexto = new StringBuilder();
+                for (String[] p : pasosVisuales) {
+                    pasosTexto.append(p[0]).append("\n").append(p[1]).append("\n");
+                }
+                guardarEnHistorial("Derivada", "", "", pasosTexto.toString(), resultadoStr);
+
+            } else {
+                // ===== CASO 2: DERIVADA NUMÉRICA EN UN PUNTO (Para seno, coseno, logaritmos, etc.) =====
+                double punto = Double.parseDouble(strPunto);
+                
+                // Llamamos a exp4j a través de nuestro MotorMatematico
+                double valorDerivada = calculadoraintegrales.backend.util.MotorMatematico.derivar(textoFuncion, variable, punto);
+
+                List<String[]> pasosVisuales = new ArrayList<>();
+                pasosVisuales.add(new String[]{"", "d/d" + variable + " (" + textoFuncion + ") evaluado en " + variable + " = " + formatearNumero(punto)});
+                pasosVisuales.add(new String[]{"Método Numérico:", "Aproximación por Diferencia Central de Newton"});
+                
+                String fraccionStr = doubleToFraccion(valorDerivada);
+                String decimalStr = formatearNumero(valorDerivada);
+                String resultadoStr = fraccionStr;
+                
+                pasosVisuales.add(new String[]{"Resultado final", "= " + fraccionStr + " ≈ " + decimalStr});
+
+                lblTipoOperacion.setText("Derivada Evaluada");
+                lblFormulaIngresada.setText("<html>f'(" + formatearNumero(punto) + ") de f(" + variable + ") = " + textoFuncion + "</html>");
+                
+                lblResultadoGrande.setText("<html><div style='font-size:32px;'>" + fraccionStr
+                        + "</div><div style='font-size:14px; color:#3071C4; font-weight:bold; margin-top:4px;'>&#8776; "
+                        + decimalStr + "</div></html>");
+                
+                lblResultadoCaption.setText("Pendiente de la recta tangente en el punto " + variable + " = " + formatearNumero(punto));
+                lblResultadoGrande.setBounds(20, 120, 480, 70);
+                lblResultadoCaption.setBounds(20, 200, 480, 40);
+                mostrarPasosVisual(pasosVisuales);
+
+                StringBuilder pasosTexto = new StringBuilder();
+                for (String[] p : pasosVisuales) {
+                    pasosTexto.append(p[0]).append("\n").append(p[1]).append("\n");
+                }
+                guardarEnHistorial("Derivada Evaluada", strPunto, "", pasosTexto.toString(), resultadoStr);
             }
-
-            if (resultadoFinal.length() == 0 || resultadoFinal.toString().equals("+0") || resultadoFinal.toString().equals("-0")) {
-                resultadoFinal = new StringBuilder("0");
-            }
-
-            String resultadoStr = resultadoFinal.toString();
-            pasosVisuales.add(new String[]{"Resultado final", "= " + resultadoStr});
-
-            lblTipoOperacion.setText("Derivada");
-            lblFormulaIngresada.setText("<html>f(" + variable + ") = " + textoFuncion + "</html>");
-            lblResultadoGrande.setText("<html>f'(" + variable + ") = " + resultadoStr + "</html>");
-            lblResultadoCaption.setText("Derivada de la función respecto a " + variable + ".");
-            mostrarPasosVisual(pasosVisuales);
-
-            StringBuilder pasosTexto = new StringBuilder();
-            for (String[] p : pasosVisuales) {
-                pasosTexto.append(p[0]).append("\n").append(p[1]).append("\n");
-            }
-            guardarEnHistorial("Derivada", "", "", pasosTexto.toString(), resultadoStr);
 
         } catch (NumberFormatException e) {
-            lblResultadoGrande.setText("Error de sintaxis");
-            lblResultadoCaption.setText("Revise que la función esté bien escrita.");
+            javax.swing.JOptionPane.showMessageDialog(this, "Para evaluar la derivada, ingrese un número válido en el 'Límite Inferior', o déjelo vacío para polinomios.", "Aviso", javax.swing.JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             lblResultadoGrande.setText("Error");
-            lblResultadoCaption.setText(e.getMessage());
+            lblResultadoCaption.setText("Revise que la función esté bien escrita (ej: usar * para multiplicar).");
         }
     }//GEN-LAST:event_btnDerivarActionPerformed
 
@@ -778,48 +819,24 @@ public class VentanaCalculadora extends javax.swing.JFrame {
                 guardarEnHistorial("Integral indefinida", "", "", pasosTexto.toString(), resultadoStr);
 
             } else if (!infVacio && !supVacio) {
-                // ===== CASO 2: INTEGRAL DEFINIDA =====
+                // ===== CASO 2: INTEGRAL DEFINIDA (AHORA CON EXP4J Y SIMPSON) =====
                 try {
-                    double limiteInferior = Double.parseDouble(strLimiteInferior);
-                    double limiteSuperior = Double.parseDouble(strLimiteSuperior);
+                    double limiteInferior = Double.parseDouble(txtLimiteInferior.getText().trim());
+                    double limiteSuperior = Double.parseDouble(txtLimiteSuperior.getText().trim());
 
-                    Parser parser = new Parser();
-                    List<Polinomio> terminos = parser.parsearFuncion(textoFuncion, variable);
+                    // LLAMADA A NUESTRO NUEVO MOTOR MATEMÁTICO (exp4j)
+                    double resultadoAcumulado = calculadoraintegrales.backend.util.MotorMatematico.integrar(textoFuncion, variable, limiteInferior, limiteSuperior);
 
-                    double resultadoAcumulado = 0;
                     List<String[]> pasosVisuales = new ArrayList<>();
-
                     pasosVisuales.add(new String[]{"", "∫ [" + formatearNumero(limiteInferior) + ", " + formatearNumero(limiteSuperior) + "] (" + textoFuncion + ") d" + variable});
-
-                    StringBuilder antiderivadaStr = new StringBuilder();
-                    double evalSupTotal = 0;
-                    double evalInfTotal = 0;
-
-                    for (Polinomio termino : terminos) {
-                        Polinomio terminoIntegrado = termino.integrar();
-                        double evalSup = terminoIntegrado.evaluar(limiteSuperior);
-                        double evalInf = terminoIntegrado.evaluar(limiteInferior);
-                        evalSupTotal += evalSup;
-                        evalInfTotal += evalInf;
-                        resultadoAcumulado += (evalSup - evalInf);
-
-                        double coef = terminoIntegrado.getCoeficiente();
-                        double exp = terminoIntegrado.getExponente();
-
-                        String terminoIntegradoStr = formatoPolinomio(coef, exp, variable);
-                        if (coef > 0 && antiderivadaStr.length() > 0) {
-                            antiderivadaStr.append("+");
-                        }
-                        antiderivadaStr.append(terminoIntegradoStr);
-                    }
-
-                    pasosVisuales.add(new String[]{"Calcular la antiderivada (Integral indefinida):", "= " + antiderivadaStr.toString()});
-                    pasosVisuales.add(new String[]{"Evaluar los límites usando la Regla de Barrow: F(b) - F(a)", "= [" + antiderivadaStr.toString() + "] desde " + formatearNumero(limiteInferior) + " hasta " + formatearNumero(limiteSuperior)});
-                    pasosVisuales.add(new String[]{"Sustituir el límite superior (" + formatearNumero(limiteSuperior) + ") y restar el límite inferior (" + formatearNumero(limiteInferior) + ")", "= (" + formatearNumero(evalSupTotal) + ") - (" + formatearNumero(evalInfTotal) + ")"});
+                    
+                    // Como ahora usamos integración numérica avanzada, cambiamos la explicación de los pasos
+                    pasosVisuales.add(new String[]{"Evaluación analítica/numérica:", "Cálculo de área mediante Regla de Simpson 1/3 acoplada a exp4j"});
 
                     String fraccionStr = doubleToFraccion(resultadoAcumulado);
                     String decimalStr = formatearNumero(resultadoAcumulado);
                     String resultadoStr = fraccionStr;
+                    
                     pasosVisuales.add(new String[]{"Resultado final", "= " + fraccionStr + " ≈ " + decimalStr});
 
                     lblTipoOperacion.setText("Integral definida");
@@ -827,7 +844,7 @@ public class VentanaCalculadora extends javax.swing.JFrame {
                     lblResultadoGrande.setText("<html><div style='font-size:32px;'>" + fraccionStr
                             + "</div><div style='font-size:14px; color:#3071C4; font-weight:bold; margin-top:4px;'>&#8776; "
                             + decimalStr + "</div></html>");
-                    lblResultadoCaption.setText("Valor de la integral en el intervalo dado.");
+                    lblResultadoCaption.setText("Valor del área bajo la curva.");
                     lblResultadoGrande.setBounds(20, 120, 480, 70);
                     lblResultadoCaption.setBounds(20, 200, 480, 40);
                     mostrarPasosVisual(pasosVisuales);
@@ -840,8 +857,12 @@ public class VentanaCalculadora extends javax.swing.JFrame {
 
                 } catch (NumberFormatException e) {
                     javax.swing.JOptionPane.showMessageDialog(this, "Los límites deben ser números válidos.", "Error de formato", javax.swing.JOptionPane.ERROR_MESSAGE);
+                } catch (Exception e) {
+                    // Si exp4j detecta un error de sintaxis en la función
+                    lblResultadoGrande.setText("Error");
+                    lblResultadoCaption.setText("Revise que la función esté bien escrita (ej: usar * para multiplicar).");
                 }
-            } else {
+            } else { 
                 javax.swing.JOptionPane.showMessageDialog(this, "Debe ingresar ambos límites o dejarlos vacíos.", "Límites incompletos", javax.swing.JOptionPane.WARNING_MESSAGE);
             }
         } catch (Exception e) {
@@ -859,23 +880,23 @@ public class VentanaCalculadora extends javax.swing.JFrame {
         String variable = cbxVariable.getSelectedItem().toString();
         String limInf = txtLimiteInferior.getText().trim();
         String limSup = txtLimiteSuperior.getText().trim();
-        
+
         // CORRECCIÓN: El resultado se obtiene de lblResultadoGrande
         // Usamos replaceAll para quitar las etiquetas HTML que le pones al resultado
-        String resultado = lblResultadoGrande.getText().replaceAll("<[^>]*>", "").trim(); 
+        String resultado = lblResultadoGrande.getText().replaceAll("<[^>]*>", "").trim();
 
         // Validamos que haya una función escrita
         if (funcion.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, 
-                "Por favor, ingrese una función y presione 'Integrar' antes de ver la gráfica.", 
-                "Datos incompletos", 
-                javax.swing.JOptionPane.WARNING_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Por favor, ingrese una función y presione 'Integrar' antes de ver la gráfica.",
+                    "Datos incompletos",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         // Abrimos la ventana gráfica y le pasamos todos los datos
         new VentanaGrafica(this.usuarioActual, funcion, variable, limInf, limSup, resultado).setVisible(true);
-        
+
         // Cerramos la calculadora actual
         this.dispose();
     }//GEN-LAST:event_btnVerGraficaActionPerformed
@@ -894,23 +915,22 @@ public class VentanaCalculadora extends javax.swing.JFrame {
     private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
         // 1. Mostramos una ventana de confirmación
         int confirmacion = javax.swing.JOptionPane.showConfirmDialog(
-            this,
-            "¿Estás seguro de que deseas cerrar sesión?",
-            "Cerrar Sesión",
-            javax.swing.JOptionPane.YES_NO_OPTION,
-            javax.swing.JOptionPane.QUESTION_MESSAGE
+                this,
+                "¿Estás seguro de que deseas cerrar sesión?",
+                "Cerrar Sesión",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE
         );
 
         // 2. Verificamos si el usuario hizo clic en "Sí"
         if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
-            
+
             // Opcional: Si tienes alguna variable global estática del usuario, la limpias aquí
             // this.usuarioActual = null; 
-            
             // 3. Abrimos la ventana de Login nuevamente
             VentanaLogin login = new VentanaLogin();
             login.setVisible(true);
-            
+
             // 4. Cerramos y destruimos la ventana actual de la calculadora
             this.dispose();
         }

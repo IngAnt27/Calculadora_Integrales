@@ -202,10 +202,10 @@ import calculadoraintegrales.backend.model.Usuario;
         jLabel4.setText("con una herramienta echa para ti.");
         jLabel4.setPreferredSize(new java.awt.Dimension(345, 54));
 
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/calculadoraintegrales/encabezado.png"))); // NOI18N
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/calculadoraintegrales/frontend/resources/encabezado.png"))); // NOI18N
         jLabel6.setPreferredSize(new java.awt.Dimension(30, 54));
 
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/calculadoraintegrales/Screenshot 2026-10-02 053249.png"))); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/calculadoraintegrales/frontend/resources/Screenshot 2026-10-02 053249.png"))); // NOI18N
         jLabel5.setText("jLabel5");
         jLabel5.setPreferredSize(new java.awt.Dimension(430, 54));
 

@@ -19,6 +19,19 @@ public class VentanaBienvenida extends javax.swing.JFrame {
      */
     public VentanaBienvenida() {
         initComponents();
+        try {
+            // Buscamos la imagen en el nuevo paquete
+            java.net.URL rutaImagen = getClass().getResource("/calculadoraintegrales/frontend/resources/Bienvenida.png");
+            
+            if (rutaImagen != null) {
+                // AQUÍ ESTÁ EL CAMBIO: Usamos jLabel2
+                jLabel2.setIcon(new javax.swing.ImageIcon(rutaImagen));
+            } else {
+                System.out.println("Advertencia: No se encontró la imagen en la nueva ruta.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error al cargar la imagen: " + e.getMessage());
+        }
         // 1. Centrar la ventana en la pantalla
         this.setLocationRelativeTo(null); 
 
@@ -40,13 +53,9 @@ public class VentanaBienvenida extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         pnlFondo = new PanelDegradado(new Color(0x070A1C), new Color(0x0C122B));
         jButton1 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/calculadoraintegrales/logo.png"))); // NOI18N
-        jLabel1.setPreferredSize(new java.awt.Dimension(950, 500));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -62,9 +71,8 @@ public class VentanaBienvenida extends javax.swing.JFrame {
         jButton1.addActionListener(this::jButton1ActionPerformed);
         pnlFondo.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 370, 160, 30));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/calculadoraintegrales/BienvenidaF.png"))); // NOI18N
-        pnlFondo.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, 800, 420));
-        jLabel2.getAccessibleContext().setAccessibleName("lblLogoBienvenida");
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/calculadoraintegrales/frontend/resources/BienvenidaF.png"))); // NOI18N
+        pnlFondo.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, 800, 400));
 
         getContentPane().add(pnlFondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 900, 500));
 
@@ -94,7 +102,6 @@ public class VentanaBienvenida extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel pnlFondo;
     // End of variables declaration//GEN-END:variables
